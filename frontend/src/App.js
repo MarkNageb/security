@@ -9,6 +9,7 @@ import "./css/signin.css"
 import "./css/style.css"
 import { useEffect } from 'react';
 import {Moralis} from 'moralis';
+import AddPatient from './AddPatient';
 
 
 
@@ -20,6 +21,7 @@ function App() {
      <Routes>
      <Route path="/" element={<Login />} />
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/add-patient" element={<AddPatient />} />
     </Routes>
 </BrowserRouter>
   );

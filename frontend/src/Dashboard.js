@@ -63,45 +63,11 @@ function Dashboard() {
       }
       const json_string=JSON.stringify(json);
 
-      // sign encryption using my private key
-      // const encrypt = new window.JSEncrypt();
-      // encrypt.setPublicKey("-----BEGIN PUBLIC KEY-----MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDlOJu6TyygqxfWT7eLtGDwajtNFOb9I5XRb6khyfD1Yt3YiCgQWMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76xFxdU6jE0NQ+Z+zEdhUTooNRaY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4gwQco1KRMDSmXSMkDwIDAQAB-----END PUBLIC KEY-----")
-      // const encrypted = encrypt.encrypt(json_string);
-      // console.log(encrypted)
-      // axios.post(url+"decrypt",{
-      //   data:encrypted
-      // })
-      const publicKey = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC+SJMkWLJ/NiKL6NRsIsjvdzyu\navEnbv+WzsHENko5AFGshfAbmjp19AJ/iaW0Jg1xu0XeEigT4UtnkTEuho8lEgRy\nULltedWgUprEGIwIHnAbJ1GJZCe3NtasaaleOPU67UkkQ9fKGXMujiCUTq1dTnd7\ntOosAeWrPpnOnx6gyQIDAQAB\n'
-      const encryptData = encryptPublicLong(json_string, serverPublicKey)
-        console.log('result: ' + encryptData)
 
     } catch (err) {
       console.error(err);
     }
     
-  };
-  const encrypt = async () => {
-    // axios
-    //   .post(url + "/" + `${result}` + "&7amada&7amada2")
-    //   .then((res) => {})
-    //   .catch((error) => {});
-
-    // .request({
-    //     method: 'eth_getEncryptionPublicKey',
-    //     params: [Moralis.User.current().get('ethAddress')], // you must have access to the specified account
-    // })
-    // .then((result) => {
-    //     console.log(result)
-
-    // })
-    // .catch((error) => {
-    //     if (error.code === 4001) {
-    //         // EIP-1193 userRejectedRequest error
-    //         console.log("We can't encrypt anything without the key.");
-    //     } else {
-    //         console.error(error);
-    //     }
-    // });
   };
 
   return (
