@@ -5,18 +5,35 @@ const crypto = require("crypto");
 var aesjs = require("aes-js");
 const Web3 = require("web3");
 const abi = require("./abi");
+const Moralis = require("moralis/node");
+// const web3Provider = Moralis.enableWeb3();
+const web3 = Moralis.enableWeb3({ privateKey: "bef01efaa9317284160e90b07ee2592e9e7cf29a17a29dd212ffdc0f76568a3a" });
+
+
+
 
 //const web3 = new Web3("ws://localhost:8546");
-var web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
+//var web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 const app = express();
 var cors = require("cors");
 app.use(cors());
 app.use(express.json());
 
+
+
+/* Moralis init code */
+const serverUrl = "https://fte4ajr1ecuv.usemoralis.com:2053/server";
+const appId = "gu2NSIijo65u7hVO1otneuNoPlw29tMQg16O3D26";
+const masterKey = "1ZVPVTMy22z8olEbWG7ts2lLvblO4RNJiDuIrbuj";
+
+Moralis.start({ serverUrl, appId, masterKey });
+console.log(Moralis)
+//
+
 const port = 5000;
 // SERVER ASUMMETRIC KEYS
-const serverPrivateKey ='506efae2c8a8756473d6bcab0eb79f3a225d6ae176c8869156f0be0812d1f1b2'
-const serverPublicKey='0xF9ea5EaA5202679bc3b8dD71957d9e33cfd68046';
+const serverPrivateKey ='bef01efaa9317284160e90b07ee2592e9e7cf29a17a29dd212ffdc0f76568a3a'
+const serverPublicKey='0x28e58c74e10d2d44776d6e75ec700657127b1980';
 // CLIENT PASSWORD
 const clientPassword = "markmarkmarkmark";
 var clientPasswordBytes = aesjs.utils.utf8.toBytes(clientPassword);
@@ -34,17 +51,20 @@ var serverCrypter = new aesjs.ModeOfOperation.ctr(
 );
 
 var contractAddress = "0x0172cF6026fF16e2C7cBCe3208766DD844922fAd";
-var patientContract = new web3.eth.Contract(abi, contractAddress);
+//var patientContract = new web3.eth.Contract(abi, contractAddress);
 
-app.post("/add-patient", (req, res) => {
+app.post("/add-patient", async(req, res) => {
   const data = convertFromJsonToArray(req.body.data);
   try {
     var decryptedData = decryptAndCheckSignAndCheckPassword(data);
     const encryptedData=encrypt(decryptedData)
     //web3.eth.accounts.privateKeyToAccount(serverPrivateKey ,true );
-    const transaction=patientContract.methods.storeVisitRecord(serverPublicKey,decryptedData.public_key,encryptedData,true)
-    transaction.send({from:serverPublicKey})
+    //await patientContract.methods.storeVisitRecord(serverPublicKey,decryptedData.public_key,"nader",true).send({from:serverPublicKey})
+
+    //await transaction.send({from:serverPublicKey})
+    console.log("hena")
     //console.log(transaction)
+    
   } catch (error) {
     console.log(error.message);
     console.log(error)
@@ -92,9 +112,17 @@ const encrypt = (message) => {
 
 
 const decryptAndCheckSignAndCheckPassword = (message) => {
+  const clientPassword = "markmarkmarkmark";
+var clientPasswordBytes = aesjs.utils.utf8.toBytes(clientPassword);
+var clientCrypter = new aesjs.ModeOfOperation.ctr(
+  clientPasswordBytes,
+  new aesjs.Counter(5)
+);
   const decryptedBytes = clientCrypter.decrypt(message);
   const decryptedText = aesjs.utils.utf8.fromBytes(decryptedBytes);
+  console.log(decryptedText)
   const json = JSON.parse(decryptedText);
+  console.log(json);
   if (json.password !== clientPassword) throw new error("WRONG PASSWORD");
   const address = sigUtil.recoverPersonalSignature({
     data: json.message_hash,
