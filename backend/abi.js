@@ -36,34 +36,6 @@ module.exports= abi=[
 				"internalType": "address",
 				"name": "patient",
 				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "doctorIn",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "messageIn",
-				"type": "string"
-			},
-			{
-				"internalType": "bool",
-				"name": "generalRecord",
-				"type": "bool"
-			}
-		],
-		"name": "storeVisitRecord",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "patient",
-				"type": "address"
 			}
 		],
 		"name": "retrieve",
@@ -107,6 +79,34 @@ module.exports= abi=[
 			}
 		],
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "patient",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "doctorIn",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "messageIn",
+				"type": "string"
+			},
+			{
+				"internalType": "bool",
+				"name": "generalRecord",
+				"type": "bool"
+			}
+		],
+		"name": "storeVisitRecord",
+		"outputs": [],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	}
 ]

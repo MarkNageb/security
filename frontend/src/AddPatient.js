@@ -7,7 +7,7 @@ import axios from 'axios';
 
 const serverUrl = "https://fte4ajr1ecuv.usemoralis.com:2053/server";
 const appId = "gu2NSIijo65u7hVO1otneuNoPlw29tMQg16O3D26";
-const url="http://localhost:5000/"
+const url="http://localhost:5000"
 
 function AddPatient() {
     useEffect(() => {
@@ -30,16 +30,23 @@ function AddPatient() {
             params: [Moralis.User.current().get("ethAddress"), message_hash],
         });
         const body={
+            general:true,
+            date:new Date(),
             message:message_string,
             message_sign:message_sign,
             message_hash:message_hash,
             "password":values.password,
-            "key":values.key,
-            "public_key":Moralis.User.current().get("ethAddress")
+            "patient_key":values.key,
+            "doctor_key":Moralis.User.current().get("ethAddress")
         }
         const body_string=JSON.stringify(body)
         const encryptedBody=encrypt(values.password,body_string)
-        axios.post(url+"add-patient",{data:encryptedBody})
+        axios.post(url+"/add-data",{data:encryptedBody})
+        .then((res)=>{
+            console.log(res)
+        }).catch((error)=>{
+            console.log(error.response)
+        })
     }
   return (
     <div>
