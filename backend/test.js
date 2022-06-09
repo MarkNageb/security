@@ -46,7 +46,7 @@ app.post("/add-data", async (req, res) => {
         console.log("ENCRYPTED: ",encryptedData)
         console.log("GENERAL: ",decryptedData.general)
         //storeVisitRecord patientId,doctorId,encrypted data, general or not                           from serverAddress
-        const contract = await myContract.methods.storeVisitRecord(decryptedData.patient_key,decryptedData.doctor_key,"DDDDDDDDDDDDDDDDDDDDD",true).send({ from: address });
+        const contract = await myContract.methods.storeVisitRecord(decryptedData.patient_key,decryptedData.doctor_key,decryptedData,false).send({ from: address });
         console.log(contract);
         res.send("SUCCESS");
       } catch (error) {
@@ -111,7 +111,7 @@ const convertFromJsonToArray = (json) => {
   return Object.values(json);
 };
 const encryptJSON = (JSONmessage) => {
-  const serverPassword = "markmarkmarkmark";
+  const serverPassword = "zebyzebyzebyzebyzebyzebyzebyzeby";
   const serverPasswordBytes = aesjs.utils.utf8.toBytes(serverPassword);
   const serverCrypter = new aesjs.ModeOfOperation.ctr(
     serverPasswordBytes,
@@ -135,8 +135,8 @@ const decryptAndCheckSignAndCheckPassword = (message) => {
   const decryptedText = aesjs.utils.utf8.fromBytes(decryptedBytes);
   //console.log(decryptedText);
   const json = JSON.parse(decryptedText);
-  //console.log(json);
-  if (json.password !== clientPassword) throw new Error("WRONG PASSWORD");
+  console.log(json.password !== clientPassword);
+  if (json.password != clientPassword) throw new Error("WRONG PASSWORD");
   const address = sigUtil.recoverPersonalSignature({
     data: json.message_hash,
     signature: json.message_sign,
