@@ -22,13 +22,41 @@ module.exports= abi=[
 			},
 			{
 				"indexed": false,
-				"internalType": "string",
+				"internalType": "uint256[]",
 				"name": "message",
-				"type": "string"
+				"type": "uint256[]"
 			}
 		],
 		"name": "RecordsAdded",
 		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "patient",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "doctorIn",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "messageIn",
+				"type": "uint256[]"
+			},
+			{
+				"internalType": "bool",
+				"name": "generalRecord",
+				"type": "bool"
+			}
+		],
+		"name": "storeVisitRecord",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
 	},
 	{
 		"inputs": [
@@ -43,9 +71,9 @@ module.exports= abi=[
 			{
 				"components": [
 					{
-						"internalType": "string",
+						"internalType": "uint256[]",
 						"name": "message",
-						"type": "string"
+						"type": "uint256[]"
 					},
 					{
 						"internalType": "address",
@@ -79,34 +107,6 @@ module.exports= abi=[
 			}
 		],
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "patient",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "doctorIn",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "messageIn",
-				"type": "string"
-			},
-			{
-				"internalType": "bool",
-				"name": "generalRecord",
-				"type": "bool"
-			}
-		],
-		"name": "storeVisitRecord",
-		"outputs": [],
-		"stateMutability": "nonpayable",
 		"type": "function"
 	}
 ]

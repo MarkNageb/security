@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Moralis } from "moralis";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { sha256 } from 'js-sha256';
 import { encryptPublicLong, decryptPrivateLong } from '@lsqswl/rsaencrypt'
@@ -12,303 +13,55 @@ const url="http://localhost:5000/"
 // sign message
 // sign= encrypt with private key
 function Dashboard() {
+  const navigate=useNavigate()
+
   useEffect(() => {
     Moralis.start({ serverUrl, appId });
-    getBalances();
   }, []);
   // console.log(Moralis.User.current())
-  const [rink, updateRink] = useState("");
-  const [eth, updateEth] = useState("");
+  // const [rink, updateRink] = useState("");
+  // const [eth, updateEth] = useState("");
 
-  const getBalances = async () => {
-    const optionsRink = {
-      chain: "rinkeby",
-      address: Moralis.User.current().get("ethAddress"),
-    };
-    const optionsEth = {
-      chain: "eth",
-      address: Moralis.User.current().get("ethAddress"),
-    };
-    const balanceRink = await Moralis.Web3API.account.getNativeBalance(
-      optionsRink
-    );
-    const balanceEth = await Moralis.Web3API.account.getNativeBalance(
-      optionsEth
-    );
 
-    let contentRink = (balanceRink.balance / 1e18).toFixed(5);
-    updateRink(contentRink);
-    let contentEth = (balanceEth.balance / 1e18).toFixed(5);
-    updateEth(contentEth);
-  };
-  const ethSign = async () => {
-    try {
-      const message="eeeeeehhhhh"
-      const message_hash=sha256(message)
-      const message_sign = await window.ethereum.request({
-        method: "personal_sign",
-        params: [Moralis.User.current().get("ethAddress"), message_hash],
-      });
+  // const ethSign = async () => {
+  //   try {
+  //     const message="eeeeeehhhhh"
+  //     const message_hash=sha256(message)
+  //     const message_sign = await window.ethereum.request({
+  //       method: "personal_sign",
+  //       params: [Moralis.User.current().get("ethAddress"), message_hash],
+  //     });
   
-      // create json and stringify
+  //     // create json and stringify
 
-      const json={
-        "message":message,
-        "message_hash":message_hash,
-        "message_sign":message_sign,
-        "password":"mesh 3aref",
-        "password_hash":sha256("mesh 3aref"),
-        "public_key":Moralis.User.current().get("ethAddress")
+  //     const json={
+  //       "message":message,
+  //       "message_hash":message_hash,
+  //       "message_sign":message_sign,
+  //       "password":"mesh 3aref",
+  //       "password_hash":sha256("mesh 3aref"),
+  //       "public_key":Moralis.User.current().get("ethAddress")
 
-      }
-      const json_string=JSON.stringify(json);
+  //     }
+  //     const json_string=JSON.stringify(json);
 
 
-    } catch (err) {
-      console.error(err);
-    }
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
     
-  };
+  // };
+
+  const route=(to)=>{
+    navigate(`/${to}`)
+  }
 
   return (
-    <div>
-      <header className="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-        <a className="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-10" href="#">
-          Sick Pupper Inc.
-        </a>
-        <button
-          className="navbar-toggler position-absolute d-md-none collapsed"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#sidebarMenu"
-          aria-controls="sidebarMenu"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-        <div className="navbar-nav">
-          <div className="nav-item text-nowrap">
-            <a id="btn-signout" className="nav-link px-3 fs-10" href="#">
-              Sign out
-            </a>
-          </div>
-        </div>
-      </header>
-      <div className="padder">
-        <div className="container-fluid">
-          <div className="row">
-            <div className="column1">
-              <div className="row">
-                <div className="subcolumn">
-                  <h2>
-                    Balance
-                    <a id="get-balance" className="nav-link" href="#">
-                      <span
-                        data-feather="refresh-cw"
-                        className="align-text-center"
-                      ></span>
-                    </a>
-                  </h2>
-                </div>
-              </div>
-              <div className="row">
-                <div className="subcolumn">
-                  <div id="userB" className="table-responsive">
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th scope="col">Token</th>
-                          <th scope="col">Balance</th>
-                        </tr>
-                      </thead>
-                      <tbody id="theBalance">
-                        <tr>
-                          <td>Rinkeby</td>
-                          <td>{rink}</td>
-                        </tr>
-
-                        <tr>
-                          <td>Ethereum</td>
-                          <td>{eth}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="column_small"></div>
-            <div className="column2">
-              <div className="row">
-                <div className="subcolumn">
-                  <h2>
-                    Add a Record
-                    <a id="add_rec" className="nav-link" href="#">
-                      <span
-                        data-feather="plus-circle"
-                        className="align-text-center"
-                      ></span>
-                    </a>
-                  </h2>
-                </div>
-              </div>
-              <div className="row">
-                <div className="subcolumn">
-                  <div className="form-floating">
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="user-name"
-                      placeholder="Name"
-                    />
-                    <label htmlFor="user-Name">Name</label>
-                  </div>
-                </div>
-                <div className="subcolumn">
-                  <div className="form-floating">
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="user-Gender"
-                      placeholder="Name"
-                    />
-                    <label htmlFor="user-Gender">Gender</label>
-                  </div>
-                </div>
-              </div>
-              <div className="row">
-                <div className="subcolumn">
-                  <div className="form-floating">
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="user-Age"
-                      placeholder="Name"
-                    />
-                    <label htmlFor="user-Age">Age</label>
-                  </div>
-                </div>
-                <div className="subcolumn">
-                  <div className="form-floating">
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="user-Weigth"
-                      placeholder="Name"
-                    />
-                    <label htmlFor="user-Weigth">Weigth</label>
-                  </div>
-                </div>
-              </div>
-              <div className="row">
-                <div className="subcolumn">
-                  <div className="form-floating">
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="user-Height"
-                      placeholder="Name"
-                    />
-                    <label htmlFor="user-Height">Height</label>
-                  </div>
-                </div>
-                <div className="subcolumn">
-                  <div className="form-floating">
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="user-BP"
-                      placeholder="Name"
-                    />
-                    <label htmlFor="user-BP">Blood Pressure</label>
-                  </div>
-                </div>
-              </div>
-              <div className="row">
-                <div className="subcolumn">
-                  <div className="form-floating">
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="user-VR"
-                      placeholder="Name"
-                    />
-                    <label htmlFor="user-VR">Visit Reason </label>
-                  </div>
-                </div>
-                <div className="subcolumn">
-                  <div className="form-floating">
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="user-Medication"
-                      placeholder="Name"
-                    />
-                    <label htmlFor="user-Medication">Medication</label>
-                  </div>
-                </div>
-              </div>
-              <div className="row">
-                <div className="subcolumn">
-                  <div className="form-floating">
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="user-Diagnosis"
-                      placeholder="Name"
-                    />
-                    <label htmlFor="user-Diagnosis">Diagnosis</label>
-                  </div>
-                </div>
-                <div className="subcolumn">
-                  <div className="form-floating">
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="user-Misc"
-                      placeholder="Name"
-                    />
-                    <label htmlFor="user-Misc">Misc</label>
-                  </div>
-                </div>
-              </div>
-
-              <button onClick={ethSign}> EH</button>
-            </div>
-          </div>
-
-          <div>
-            <div>
-              <h2>
-                Transactions
-                <a id="get-trans" className="nav-link" href="#">
-                  <span
-                    data-feather="refresh-cw"
-                    className="align-text-center"
-                  ></span>
-                </a>
-              </h2>
-
-              <div id="userT" className="table-responsive">
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th scope="col">Transaction</th>
-                      <th scope="col">Block Number</th>
-                      <th scope="col">Age</th>
-                      <th scope="col">Type</th>
-                      <th scope="col">Fee</th>
-                      <th scope="col">Value</th>
-                    </tr>
-                  </thead>
-                  <tbody id="theTrans"></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="container text-center ">
+      <h1 className="mt=10">ta3ala ekshef 3alaya hhhhhh</h1>
+      <h4 className="btn btn-secondary" onClick={()=>route("add-patient")}> Add new patient</h4>
+      <br/>
+      <h4 className="btn btn-secondary" onClick={()=>route("patient")}> View patient</h4>
     </div>
   );
 }

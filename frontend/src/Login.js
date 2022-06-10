@@ -3,45 +3,37 @@ import Sickdog from "./sickdog.png";
 import { Moralis } from "moralis";
 import { useNavigate } from "react-router-dom";
 
-
-const Http = new XMLHttpRequest();
-let url = "http://127.0.0.1:5500/add_record";
-let pageLoaded = false;
 const serverUrl = "https://fte4ajr1ecuv.usemoralis.com:2053/server";
 const appId = "gu2NSIijo65u7hVO1otneuNoPlw29tMQg16O3D26";
 
-function Login({router}) {
-    const navigate = useNavigate()
+function Login() {
+  const navigate = useNavigate();
   useEffect(() => {
     Moralis.start({ serverUrl, appId });
   }, []);
 
   const login = async () => {
-    await Moralis.authenticate().then( (user)=> {
-        console.log(user)
-        navigate("/dashboard")
-    })
-}
+    await Moralis.authenticate().then(() => {
+      navigate("/dashboard");
+    });
+  };
   return (
-    <div className="text-center">
-      <main className="form-signin w-100 m-auto">
-        <img className="mb-4" src={Sickdog} alt="" width="152" height="137" />
+    <div className="text-center pt-10">
+      <div className="mt-20">
+      <img className="mb-4" src={Sickdog} alt="" width="152" height="137" />
         <h2>Sick Pupper Inc.</h2>
-        <div className="form-floating">
-          <button
-            onClick={() => {
-              console.log("login");
-              login()
-            }}
+      </div>
+
+      <div className="mt-5">
+      <button
+            onClick={login}
             id="btn-login"
-            className="w-100 btn btn-lg btn-primary"
+            className="btn btn-primary w-25"
             type="submit"
           >
             Sign in
           </button>
-          <p className="mt-5 mb-3 text-muted">&copy; 2022</p>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }

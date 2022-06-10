@@ -1,4 +1,5 @@
 //Imports
+require('dotenv').config()
 const express = require("express");
 const Web3 = require("web3");
 const Provider = require("@truffle/hdwallet-provider");
@@ -6,23 +7,33 @@ const contract_abi = require("./abi");
 const aesjs = require("aes-js");
 const sigUtil = require("@metamask/eth-sig-util");
 const cors = require("cors");
+const utf8 = require("utf8");
 // Express
 const app = express();
 app.use(cors());
 app.use(express.json());
 const port = 5000;
 // Server keys
-const serverPublicKey = "0x28e58c74e10d2d44776d6e75ec700657127b1980";
-const serverPrivateKey =
-  "bef01efaa9317284160e90b07ee2592e9e7cf29a17a29dd212ffdc0f76568a3a";
+const serverPublicKey = process.env.serverPublicKey;
+const serverPrivateKey = process.env.serverPrivateKey
 // Other keys
-const SmartContractAddress = "0x5fC157104d7167CcA143dEa137FFa4e63c612B5D";
+const SmartContractAddress = "0x15f413094Aed4D7f8f7795fC4955BE010e04c414";
 const SmartContractABI = contract_abi;
 const address = serverPublicKey;
 const privatekey = serverPrivateKey;
 const rpcurl = "https://rinkeby.infura.io/v3/e64a8dd6019a46a2b9c26f3fd4eee57b";
 
-//const patient="0xdca1cff5545c789cdac40bf24968d3713bde52df"
+// Server Password
+const serverPassword = process.env.serverPassword;
+const serverPasswordBytes = aesjs.utils.utf8.toBytes(serverPassword);
+// Client Password
+const clientPassword = process.env.clientPassword;
+const clientPasswordBytes = aesjs.utils.utf8.toBytes(clientPassword);
+//
+
+app.get("/",(req,res)=>{
+  res.send("SHA8AAAALLLLL")
+})
 
 app.post("/add-data", async (req, res) => {
   console.log("ADD PATIENT");
@@ -39,23 +50,31 @@ app.post("/add-data", async (req, res) => {
       const data = convertFromJsonToArray(req.body.data);
       const decryptedData = decryptAndCheckSignAndCheckPassword(data);
       //console.log(decryptedData)
-      const encryptedData = encryptJSON(decryptedData);
+      const encryptedData = await encryptJSON(decryptedData);
       try {
-        console.log("DOCTOR: ",decryptedData.doctor_key)
-        console.log("PATIENT: ",decryptedData.patient_key)
-        console.log("ENCRYPTED: ",encryptedData)
-        console.log("GENERAL: ",decryptedData.general)
         //storeVisitRecord patientId,doctorId,encrypted data, general or not                           from serverAddress
-        const contract = await myContract.methods.storeVisitRecord(decryptedData.patient_key,decryptedData.doctor_key,decryptedData,false).send({ from: address });
-        console.log(contract);
+        const contract = await myContract.methods
+          .storeVisitRecord(
+            decryptedData.patient_key,
+            decryptedData.doctor_key,
+            encryptedData,
+            decryptedData.general
+          )
+          .send({ from: address });
         res.send("SUCCESS");
       } catch (error) {
         console.log(error);
-        res.status(400).send("ERROR INSERTING RECORD");
+        if (
+          error.message.includes(
+            "The Patient already has a General Info Record"
+          )
+        )
+          return res.status(505).send("Patient already has general record");
+        return res.status(400).send("ERROR INSERTING RECORD");
       }
     } catch (error) {
       console.log(error);
-      res.status(400).send("WRONG PASSWORD");
+      res.status(408).send("WRONG PASSWORD");
     }
   } catch (error) {
     console.log(error);
@@ -63,84 +82,133 @@ app.post("/add-data", async (req, res) => {
   }
 });
 
-const sendData = async () => {
-  var provider = new Provider(privatekey, rpcurl);
-  var web3 = new Web3(provider);
-  var myContract = new web3.eth.Contract(
-    SmartContractABI,
-    SmartContractAddress
-  );
+app.post("/get-patient", async (req, res) => {
+  console.log("GET PATIENT");
   try {
-    const data = {
-      name: "lool",
-      age: "69",
-    };
+    // Initialization of contract
+    const provider = new Provider(privatekey, rpcurl);
+    const web3 = new Web3(provider);
+    const myContract = new web3.eth.Contract(
+      SmartContractABI,
+      SmartContractAddress
+    );
+    try {
+      // GET PLAIN TEXT DATA
+      const data = req.body.data;
 
-    //storeVisitRecord doctorId,patientId,encrypted data, general or not                           from serverAddress
-    //const idk=await myContract.methods.storeVisitRecord(serverPublicKey,patient,data,false).send({ from: address });
-    //console.log("oldvalue", idk);
+      try {
+        // Retreieve record from contract
+        const records=await myContract.methods.retrieve(data.patient_key).call({ from: address })
+        const decryptedRecords=[]
+        for(let i=0;i<records.length;i++){
+            const record=records[i]
+            const decryptedMessage=await decryptAndEncryptMessage(record.message)
+            const str=aesjs.utils.utf8.fromBytes(decryptedMessage)
+            const json=JSON.parse(str)
+            const body={
+              date:json.date,
+              data:json.message
+            }
+            decryptedRecords.push(body)
+        }
+        // Encrypt for client
+
+        const encryptedBody=await encryptForClient(decryptedRecords)
+
+        return res.send({body:encryptedBody})
+
+      } catch (error) {
+
+        console.log(error);
+
+        if(error.message.includes("This Patient doesn't have any records.")) return res.status(444).send()
+        if (
+          error.message.includes(
+            "The Patient already has a General Info Record"
+          )
+        )
+          return res.status(505).send("Patient already has general record");
+        return res.status(400).send("ERROR INSERTING RECORD");
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(408).send("WRONG PASSWORD");
+    }
   } catch (error) {
     console.log(error);
+    res.status(500).send("ERROR IN INITIALIZATION");
   }
+});
 
-  // patientID
-  myContract.methods
-    .retrieve(serverPublicKey)
-    .call({ from: address })
-    .then((res) => {
-      console.log(res);
-    })
 
-    .catch((error) => {
-      console.log(error);
-    });
-  //console.log(receipt);
+app.listen(process.env.PORT || port,()=>{
+  console.log("listening on", port);
+});
 
-  //   var newvalue = await myContract.methods.retrieve().call();
-  //   console.log("newvalue", newvalue);
-
-  //console.log("done with all things");
-};
-
-//sendData();
-
-app.listen(port);
-console.log("listening on", port);
 
 const convertFromJsonToArray = (json) => {
   return Object.values(json);
 };
-const encryptJSON = (JSONmessage) => {
-  const serverPassword = "zebyzebyzebyzebyzebyzebyzebyzeby";
-  const serverPasswordBytes = aesjs.utils.utf8.toBytes(serverPassword);
+
+
+const encryptForClient=async(decryptedRecords)=>{
+  const body={
+    records:decryptedRecords
+  }
+  const body_string=JSON.stringify(body)
+  const decryptedBytes=aesjs.utils.utf8.toBytes(body_string)
+    // Initalize Client Crypter
+    const clientCrypter = await new aesjs.ModeOfOperation.ctr(
+      clientPasswordBytes,
+      new aesjs.Counter(5)
+    );
+
+    const encryptedBytes=clientCrypter.encrypt(decryptedBytes)
+    return encryptedBytes
+
+}
+
+const encryptJSON = async (JSONmessage) => {
+  //Initialize Server Crypter
   const serverCrypter = new aesjs.ModeOfOperation.ctr(
     serverPasswordBytes,
     new aesjs.Counter(5)
   );
+  // Encrypt Server Message
   const message_string = JSON.stringify(JSONmessage);
   const message_String_bytes = aesjs.utils.utf8.toBytes(message_string);
   const encryptedBytes = serverCrypter.encrypt(message_String_bytes);
-  const encryptedText = aesjs.utils.utf8.fromBytes(encryptedBytes);
-  return encryptedText;
+  return Array.from(encryptedBytes);
+};
+
+const decryptAndEncryptMessage = async (encryptedServerMessage) => {
+  encryptedServerMessage=Uint8Array.from(encryptedServerMessage)
+  // Initialize Server Crypter
+  const serverCrypter = await new aesjs.ModeOfOperation.ctr(
+    serverPasswordBytes,
+    new aesjs.Counter(5)
+  );
+
+  // Decrypt Server Message
+  const decryptedServerMessage=await serverCrypter.decrypt(encryptedServerMessage)
+  return decryptedServerMessage;
 };
 
 const decryptAndCheckSignAndCheckPassword = (message) => {
-  const clientPassword = "markmarkmarkmark";
-  var clientPasswordBytes = aesjs.utils.utf8.toBytes(clientPassword);
   var clientCrypter = new aesjs.ModeOfOperation.ctr(
     clientPasswordBytes,
     new aesjs.Counter(5)
   );
   const decryptedBytes = clientCrypter.decrypt(message);
   const decryptedText = aesjs.utils.utf8.fromBytes(decryptedBytes);
-  //console.log(decryptedText);
   const json = JSON.parse(decryptedText);
-  console.log(json.password !== clientPassword);
   if (json.password != clientPassword) throw new Error("WRONG PASSWORD");
   const address = sigUtil.recoverPersonalSignature({
     data: json.message_hash,
     signature: json.message_sign,
   });
-  if (json.doctor_key  !== address) throw new Error("UNVERIFIED USER");
+  if (json.doctor_key !== address) throw new Error("UNVERIFIED USER");
   return json;
 };
+
+//Error: PollingBlockTracker - encountered an error while attempting to update latest block:
