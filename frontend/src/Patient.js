@@ -8,7 +8,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 
 const serverUrl = "https://fte4ajr1ecuv.usemoralis.com:2053/server";
 const appId = "gu2NSIijo65u7hVO1otneuNoPlw29tMQg16O3D26";
-const url = "https://hospital-maganeen.herokuapp.com";
+const url = "https://hospital-3a2leen.herokuapp.com";
 
 
 function Patient() {
