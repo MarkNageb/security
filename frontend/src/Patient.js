@@ -8,8 +8,8 @@ import { Navigate, useNavigate } from "react-router-dom";
 
 const serverUrl = "https://fte4ajr1ecuv.usemoralis.com:2053/server";
 const appId = "gu2NSIijo65u7hVO1otneuNoPlw29tMQg16O3D26";
-const url = "https://hospital-3a2leen.herokuapp.com";
-
+//const url = "https://hospital-3a2leen.herokuapp.com";
+const url="https://hospital-maganeen.herokuapp.com"
 
 function Patient() {
     const navigate=useNavigate()
@@ -73,8 +73,10 @@ function Patient() {
       if(!patientKey) return alert("PATIENT KEY NEEDED")
       if(!password) return alert("PASSWORD NEDDED")
       const body = {
+        // date does not matter
         date: new Date(),
         patient_key: patientKey,
+        // doctor key does not matter
         doctor_key: Moralis.User.current().get("ethAddress"),
       };
       //const body_string = JSON.stringify(body);
@@ -84,7 +86,7 @@ function Patient() {
         .then(async(res) => {
             console.log(res)
           const records=await decrypt(password,res.data.body)
-          
+          console.log(records)
           const parsedRecords=[]
           for(let i=0;i<records.length;i++){
               parsedRecords.push({

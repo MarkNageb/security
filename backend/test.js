@@ -102,6 +102,7 @@ app.post("/get-patient", async (req, res) => {
         const decryptedRecords=[]
         for(let i=0;i<records.length;i++){
             const record=records[i]
+            // THis is only decryption
             const decryptedMessage=await decryptAndEncryptMessage(record.message)
             const str=aesjs.utils.utf8.fromBytes(decryptedMessage)
             const json=JSON.parse(str)
